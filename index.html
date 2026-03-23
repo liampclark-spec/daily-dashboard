@@ -3,20 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Liam's Daily Dashboard</title>
+<title>Daily Dashboard</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8f8f6;color:#1a1a18;min-height:100vh}
 .wrap{max-width:1100px;margin:0 auto;padding:20px}
-.hdr{display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:14px;border-bottom:1px solid #e0ddd4;margin-bottom:0}
+#key-modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:999}
+.key-box{background:#fff;border-radius:12px;padding:30px 32px;width:430px;max-width:92vw}
+.key-box h2{font-size:17px;font-weight:500;margin-bottom:8px}
+.key-box p{font-size:13px;color:#666;margin-bottom:18px;line-height:1.55}
+.key-box input{width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:7px;font-size:13px;font-family:ui-monospace,monospace;margin-bottom:12px}
+.key-box input:focus{outline:none;border-color:#185FA5}
+.key-box .go{width:100%;padding:10px;background:#185FA5;color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit}
+.key-box .go:hover{background:#124e8a}
+.key-note{font-size:11px;color:#aaa;margin-top:10px;text-align:center}
+.hdr{display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:14px;border-bottom:1px solid #e0ddd4}
 .greet{font-size:22px;font-weight:500}
 .clk{font-size:21px;font-weight:500;font-family:ui-monospace,monospace;text-align:right}
 .dstr{font-size:12px;color:#888;text-align:right;margin-top:2px}
-nav{display:flex;border-bottom:1px solid #e0ddd4;margin-bottom:0}
+nav{display:flex;border-bottom:1px solid #e0ddd4;align-items:stretch}
 .nb{flex:1;padding:11px 4px;background:none;border:none;border-bottom:2.5px solid transparent;color:#888;font-family:inherit;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .15s}
 .nb:hover{color:#1a1a18;background:#f0ede4}
 .nb.on{color:#1a1a18}
 .nb.on.pf{border-bottom-color:#185FA5}.nb.on.it{border-bottom-color:#534AB7}.nb.on.sp{border-bottom-color:#3B6D11}.nb.on.dy{border-bottom-color:#BA7517}
+.kbtn{padding:0 14px;background:none;border:none;border-bottom:2.5px solid transparent;font-family:inherit;font-size:11px;color:#aaa;cursor:pointer;white-space:nowrap}
+.kbtn:hover{color:#185FA5}
 .panel{display:none}.panel.on{display:block}
 .ldbtn{display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;background:none;border:none;border-bottom:1px solid #e0ddd4;color:#185FA5;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;text-align:left}
 .ldbtn:hover{background:#f0ede4}.ldbtn:disabled{opacity:.4;cursor:default}
@@ -28,10 +39,10 @@ nav{display:flex;border-bottom:1px solid #e0ddd4;margin-bottom:0}
 .err{padding:14px 16px;font-size:12px;color:#c0392b;line-height:1.5}
 .tkrow{display:flex;align-items:center;gap:10px;padding:8px 16px;border-bottom:1px solid #eee}
 .tkrow:hover{background:#faf9f6}
-.tick{font-size:12px;font-weight:600;font-family:ui-monospace,monospace;color:#1a1a18;width:50px;flex-shrink:0}
+.tick{font-size:12px;font-weight:600;font-family:ui-monospace,monospace;width:50px;flex-shrink:0}
 .tname{font-size:12px;color:#666;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tprice{font-size:13px;font-weight:500;font-family:ui-monospace,monospace;min-width:60px;text-align:right}
-.tchg{font-size:12px;font-family:ui-monospace,monospace;min-width:82px;text-align:right}
+.tchg{font-size:12px;font-family:ui-monospace,monospace;min-width:84px;text-align:right}
 .up{color:#27ae60}.dn{color:#e74c3c}.fl{color:#888}
 .stabs{display:flex;border-bottom:1px solid #e0ddd4;overflow-x:auto}
 .stab{padding:9px 14px;background:none;border:none;border-bottom:2px solid transparent;color:#888;font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap}
@@ -40,22 +51,21 @@ nav{display:flex;border-bottom:1px solid #e0ddd4;margin-bottom:0}
 .ncard:hover{background:#faf9f6}
 .nc-meta{display:flex;align-items:center;gap:5px;margin-bottom:4px;flex-wrap:wrap}
 .badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:5px}
-.b-bl{background:#dbeafe;color:#1e40af}.b-gr{background:#dcfce7;color:#166534}.b-am{background:#fef3c7;color:#92400e}
-.b-pu{background:#ede9fe;color:#5b21b6}.b-gy{background:#f1f5f9;color:#475569}.b-te{background:#d1fae5;color:#065f46}
+.b-bl{background:#dbeafe;color:#1e40af}.b-gr{background:#dcfce7;color:#166534}
+.b-am{background:#fef3c7;color:#92400e}.b-pu{background:#ede9fe;color:#5b21b6}
+.b-gy{background:#f1f5f9;color:#475569}.b-te{background:#d1fae5;color:#065f46}
 .nc-type{font-size:11px;color:#888}.nc-dt{font-size:11px;color:#aaa;margin-left:auto}
 .nc-title{font-size:13px;font-weight:500;line-height:1.4;margin-bottom:3px}
 .nc-sum{font-size:12px;color:#666;line-height:1.5}
 .sc-row{display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid #eee}
 .sc-row:hover{background:#faf9f6}
 .sc-lg{font-size:10px;font-weight:600;background:#f1f5f9;color:#475569;border-radius:5px;padding:2px 7px;flex-shrink:0;border:1px solid #e2e8f0;text-transform:uppercase}
-.sc-tm{flex:1;font-size:13px}
-.sc-sc{font-size:14px;font-weight:500;font-family:ui-monospace,monospace}
+.sc-tm{flex:1;font-size:13px}.sc-sc{font-size:14px;font-weight:500;font-family:ui-monospace,monospace}
 .st-row{padding:8px 16px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:10px}
 .st-rk{font-size:12px;font-weight:600;font-family:ui-monospace,monospace;color:#aaa;width:18px;flex-shrink:0}
-.st-tm{font-size:13px;flex:1}
-.st-st{font-size:12px;font-family:ui-monospace,monospace;color:#666}
+.st-tm{font-size:13px;flex:1}.st-st{font-size:12px;font-family:ui-monospace,monospace;color:#666}
 .task-bar{display:flex;gap:8px;padding:10px 14px;border-bottom:1px solid #eee}
-.task-bar input{flex:1;font-size:13px;padding:7px 10px;border:1px solid #ddd;border-radius:6px;background:#fff;font-family:inherit}
+.task-bar input{flex:1;font-size:13px;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-family:inherit}
 .task-bar input:focus{outline:none;border-color:#185FA5}
 .addbtn{background:#dbeafe;color:#1e40af;border:1px solid #93c5fd;border-radius:6px;padding:5px 14px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit}
 .ti{display:flex;align-items:flex-start;gap:9px;padding:8px 14px;border-bottom:1px solid #eee}
@@ -87,75 +97,107 @@ nav{display:flex;border-bottom:1px solid #e0ddd4;margin-bottom:0}
 </style>
 </head>
 <body>
+ 
+<div id="key-modal">
+  <div class="key-box">
+    <h2>Enter your Anthropic API key</h2>
+    <p>Your key is stored in memory for this session only. It is never saved to disk, never sent to GitHub, and only used to call the Anthropic API to power this dashboard.</p>
+    <input type="password" id="key-input" placeholder="sk-ant-..." autocomplete="off" onkeydown="if(event.key==='Enter')saveKey()">
+    <button class="go" onclick="saveKey()">Open dashboard</button>
+    <p class="key-note">Get your key at console.anthropic.com &rarr; API Keys</p>
+  </div>
+</div>
+ 
 <div class="wrap">
-<div class="hdr">
-  <div class="greet">Good <span id="tod">morning</span>, Liam.</div>
-  <div><div class="clk" id="clk">--:--:--</div><div class="dstr" id="dstr"></div></div>
+  <div class="hdr">
+    <div class="greet">Good <span id="tod">morning</span>, Liam.</div>
+    <div><div class="clk" id="clk">--:--:--</div><div class="dstr" id="dstr"></div></div>
+  </div>
+  <nav>
+    <button class="nb on pf" onclick="sw('pf',this)">Portfolio</button>
+    <button class="nb it" onclick="sw('it',this)">Manager Intel</button>
+    <button class="nb sp" onclick="sw('sp',this)">Sports</button>
+    <button class="nb dy" onclick="sw('dy',this)">Daily</button>
+    <button class="kbtn" onclick="changeKey()">Change key</button>
+  </nav>
+ 
+  <div class="panel on" id="tab-pf">
+    <button class="ldbtn" id="pf-btn" onclick="loadPF()">&#9654; Load live quotes</button>
+    <div id="pf-out"><div class="empty">Click above to fetch current prices</div></div>
+  </div>
+ 
+  <div class="panel" id="tab-it">
+    <div class="stabs">
+      <button class="stab on" onclick="swST('mg',this)">Managers</button>
+      <button class="stab" onclick="swST('pc',this)">Portfolio Cos.</button>
+      <button class="stab" onclick="swST('res',this)">Research</button>
+    </div>
+    <div id="it-out">
+      <button class="ldbtn" id="mg-btn" onclick="loadMG()">&#9654; Search manager news</button>
+      <div id="mg-out"><div class="empty">Click above to scan for firm news</div></div>
+    </div>
+  </div>
+ 
+  <div class="panel" id="tab-sp">
+    <div class="stabs">
+      <button class="stab on" onclick="swSP('sc',this)">Scores</button>
+      <button class="stab" onclick="swSP('st',this)">Standings</button>
+      <button class="stab" onclick="swSP('ld',this)">Leaders</button>
+    </div>
+    <div id="sp-out"><div class="empty">Select a category to load sports data</div></div>
+  </div>
+ 
+  <div class="panel" id="tab-dy">
+    <div class="dtabs">
+      <button class="dtab on" onclick="swDY('ts',this)">Tasks</button>
+      <button class="dtab" onclick="swDY('mk',this)">Markets</button>
+      <button class="dtab" onclick="swDY('pe',this)">PE / VC</button>
+      <button class="dtab" onclick="swDY('nl',this)">Inbox</button>
+    </div>
+    <div id="dy-ts">
+      <div class="task-bar">
+        <input id="tin" type="text" placeholder="Add a task..." onkeydown="if(event.key==='Enter')addT()">
+        <button class="addbtn" onclick="addT()">Add</button>
+      </div>
+      <div id="tlist"></div>
+      <div class="prg">
+        <div class="prw"><span>Progress</span><span id="ptxt">0 / 0</span></div>
+        <div class="ptr"><div class="pfi" id="pfi" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div id="dy-mk" style="display:none">
+      <button class="ldbtn" id="mk-btn" onclick="loadNews('mk')">&#9654; Fetch market briefing</button>
+      <div id="mk-out"><div class="empty">Click to load today's market news</div></div>
+    </div>
+    <div id="dy-pe" style="display:none">
+      <button class="ldbtn" id="pe-btn" onclick="loadNews('pe')">&#9654; Fetch PE / VC news</button>
+      <div id="pe-out"><div class="empty">Click to load today's PE / VC news</div></div>
+    </div>
+    <div id="dy-nl" style="display:none">
+      <button class="ldbtn" id="nl-btn" onclick="loadNL()">&#9654; Load newsletters from Gmail</button>
+      <div id="nl-out"><div class="empty">Click to scan your inbox</div></div>
+    </div>
+  </div>
 </div>
-<nav>
-  <button class="nb on pf" onclick="sw('pf',this)">Portfolio</button>
-  <button class="nb it" onclick="sw('it',this)">Manager Intel</button>
-  <button class="nb sp" onclick="sw('sp',this)">Sports</button>
-  <button class="nb dy" onclick="sw('dy',this)">Daily</button>
-</nav>
-
-<div class="panel on" id="tab-pf">
-  <button class="ldbtn" id="pf-btn" onclick="loadPF()">&#9654; Load live quotes</button>
-  <div id="pf-out"><div class="empty">Click above to fetch current prices</div></div>
-</div>
-
-<div class="panel" id="tab-it">
-  <div class="stabs">
-    <button class="stab on" onclick="swST('mg',this)">Managers</button>
-    <button class="stab" onclick="swST('pc',this)">Portfolio Cos.</button>
-    <button class="stab" onclick="swST('res',this)">Research</button>
-  </div>
-  <div id="it-out">
-    <button class="ldbtn" id="mg-btn" onclick="loadMG()">&#9654; Search manager news</button>
-    <div id="mg-out"><div class="empty">Click above to scan for firm news</div></div>
-  </div>
-</div>
-
-<div class="panel" id="tab-sp">
-  <div class="stabs">
-    <button class="stab on" onclick="swSP('sc',this)">Scores</button>
-    <button class="stab" onclick="swSP('st',this)">Standings</button>
-    <button class="stab" onclick="swSP('ld',this)">Leaders</button>
-  </div>
-  <div id="sp-out"><div class="empty">Select a category to load sports data</div></div>
-</div>
-
-<div class="panel" id="tab-dy">
-  <div class="dtabs">
-    <button class="dtab on" onclick="swDY('ts',this)">Tasks</button>
-    <button class="dtab" onclick="swDY('mk',this)">Markets</button>
-    <button class="dtab" onclick="swDY('pe',this)">PE / VC</button>
-    <button class="dtab" onclick="swDY('nl',this)">Inbox</button>
-  </div>
-  <div id="dy-ts">
-    <div class="task-bar"><input id="tin" type="text" placeholder="Add a task…" onkeydown="if(event.key==='Enter')addT()"><button class="addbtn" onclick="addT()">Add</button></div>
-    <div id="tlist"></div>
-    <div class="prg"><div class="prw"><span>Progress</span><span id="ptxt">0 / 0</span></div><div class="ptr"><div class="pfi" id="pfi" style="width:0%"></div></div></div>
-  </div>
-  <div id="dy-mk" style="display:none">
-    <button class="ldbtn" id="mk-btn" onclick="loadNews('mk')">&#9654; Fetch market briefing</button>
-    <div id="mk-out"><div class="empty">Click to load today's market news</div></div>
-  </div>
-  <div id="dy-pe" style="display:none">
-    <button class="ldbtn" id="pe-btn" onclick="loadNews('pe')">&#9654; Fetch PE / VC news</button>
-    <div id="pe-out"><div class="empty">Click to load today's PE / VC news</div></div>
-  </div>
-  <div id="dy-nl" style="display:none">
-    <button class="ldbtn" id="nl-btn" onclick="loadNL()">&#9654; Load newsletters from Gmail</button>
-    <div id="nl-out"><div class="empty">Click to scan your inbox</div></div>
-  </div>
-</div>
-</div>
-
+ 
 <script>
 const API='https://api.anthropic.com/v1/messages';
 const MODEL='claude-sonnet-4-20250514';
-
+let APIKEY='';
+ 
+function saveKey(){
+  const v=document.getElementById('key-input').value.trim();
+  if(!v.startsWith('sk-')){alert('Please enter a valid Anthropic API key (starts with sk-)');return}
+  APIKEY=v;
+  document.getElementById('key-modal').style.display='none';
+  setTimeout(()=>loadPF(),300);
+}
+function changeKey(){
+  APIKEY='';
+  document.getElementById('key-input').value='';
+  document.getElementById('key-modal').style.display='flex';
+}
+ 
 function tick(){
   const n=new Date(),p=v=>String(v).padStart(2,'0');
   document.getElementById('clk').textContent=`${p(n.getHours())}:${p(n.getMinutes())}:${p(n.getSeconds())}`;
@@ -165,51 +207,56 @@ function tick(){
   document.getElementById('tod').textContent=n.getHours()<12?'morning':n.getHours()<17?'afternoon':'evening';
 }
 setInterval(tick,1000);tick();
-
+ 
 function e(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function sw(id,btn){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));document.getElementById('tab-'+id).classList.add('on');btn.classList.add('on')}
 function swST(id,btn){
   document.querySelectorAll('.stab').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
   const H={
     mg:`<button class="ldbtn" id="mg-btn" onclick="loadMG()">&#9654; Search manager news</button><div id="mg-out"><div class="empty">Click above to scan for firm news</div></div>`,
-    pc:`<button class="ldbtn" id="pc-btn" onclick="loadPC()">&#9654; Search portfolio company news</button><div id="pc-out"><div class="empty">Click above to scan for fundraises, exits &amp; liquidity events</div></div>`,
+    pc:`<button class="ldbtn" id="pc-btn" onclick="loadPC()">&#9654; Search portfolio company news</button><div id="pc-out"><div class="empty">Click above to scan for fundraises, exits and liquidity events</div></div>`,
     res:`<button class="ldbtn" id="res-btn" onclick="loadRes()">&#9654; Check for new research</button><div id="res-out"><div class="empty">Click above to check for Cembalest and Mauboussin publications</div></div>`
   };
   document.getElementById('it-out').innerHTML=H[id]||'';
 }
 function swSP(id,btn){document.querySelectorAll('.stab').forEach(b=>b.classList.remove('on'));btn.classList.add('on');const o=document.getElementById('sp-out');if(id==='sc')loadSc(o);else if(id==='st')loadSt(o);else loadLd(o)}
 function swDY(id,btn){document.querySelectorAll('.dtab').forEach(b=>b.classList.remove('on'));btn.classList.add('on');['ts','mk','pe','nl'].forEach(k=>{const el=document.getElementById('dy-'+k);if(el)el.style.display=k===id?'block':'none'})}
-
-async function ai(prompt,tok,mcp){
-  const body={model:MODEL,max_tokens:tok||1000,messages:[{role:'user',content:prompt}]};
-  if(mcp)body.mcp_servers=mcp;
-  else body.tools=[{type:'web_search_20250305',name:'web_search'}];
-  const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+ 
+function today(){return new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
+function yesterday(){const d=new Date();d.setDate(d.getDate()-1);return d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
+ 
+async function ai(prompt,tok){
+  const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':APIKEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:MODEL,max_tokens:tok||1000,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:prompt}]})});
+  if(!r.ok){const t=await r.text();throw new Error(`API error ${r.status}: ${t.slice(0,200)}`)}
   const d=await r.json();
   return d.content.filter(b=>b.type==='text').map(b=>b.text).join('');
 }
 function pj(txt){const c=txt.replace(/```json|```/g,''),m=c.match(/[\[{][\s\S]*[\]}]/);if(!m)return null;try{return JSON.parse(m[0])}catch{return null}}
-
+ 
 const EQ=['RY','TFC','GOOGL','CRWD','CRM','TMO','KKR','PDD','GOOG','NU','MPLX','EXE','MGNI','BXP','SRAD'];
 const ETF=['VWO','TLT','EWJ','KWEB','KCCA','XBI','VNQ','IEO','IBIT'];
-
+ 
 async function loadPF(){
   const btn=document.getElementById('pf-btn');btn.disabled=true;
-  document.getElementById('pf-out').innerHTML='<div class="ldg"><div class="spin"></div>Fetching live quotes…</div>';
+  document.getElementById('pf-out').innerHTML='<div class="ldg"><div class="spin"></div>Fetching live quotes...</div>';
   try{
-    const today=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
-    const txt=await ai(`Search current stock prices as of ${today} for these tickers: ${[...EQ,...ETF].join(', ')}. Return raw JSON array only, no markdown: [{ticker,name,price,change,pct}] where price/change/pct are numbers. Keep names under 28 characters.`,1400);
+    const txt=await ai(`Search current stock prices as of ${today()} for these tickers: ${[...EQ,...ETF].join(', ')}. Return raw JSON array only, no markdown: [{ticker,name,price,change,pct}] where price/change/pct are numbers. Keep names under 28 characters.`,1400);
     const data=pj(txt);if(!data||!data.length)throw new Error('No data returned');
-    const rows=arr=>arr.map(s=>{const pr=parseFloat(s.price)||0,ch=parseFloat(s.change)||0,pt=parseFloat(s.pct)||0,cl=ch>0?'up':ch<0?'dn':'fl',sg=ch>=0?'+':'';return`<div class="tkrow"><span class="tick">${e(s.ticker)}</span><span class="tname">${e(s.name)}</span><span class="tprice" style="color:${ch>0?'#27ae60':ch<0?'#e74c3c':'#1a1a18'}">$${pr.toFixed(2)}</span><span class="tchg ${cl}">${sg}${ch.toFixed(2)} (${sg}${pt.toFixed(2)}%)</span></div>`}).join('');
+    const rows=arr=>arr.map(s=>{
+      const pr=parseFloat(s.price)||0,ch=parseFloat(s.change)||0,pt=parseFloat(s.pct)||0;
+      const cl=ch>0?'up':ch<0?'dn':'fl',sg=ch>=0?'+':'';
+      const pc=ch>0?'#27ae60':ch<0?'#e74c3c':'#1a1a18';
+      return`<div class="tkrow"><span class="tick">${e(s.ticker)}</span><span class="tname">${e(s.name)}</span><span class="tprice" style="color:${pc}">$${pr.toFixed(2)}</span><span class="tchg ${cl}">${sg}${ch.toFixed(2)} (${sg}${pt.toFixed(2)}%)</span></div>`;
+    }).join('');
     const eq=data.filter(d=>EQ.includes(String(d.ticker).toUpperCase()));
     const et=data.filter(d=>ETF.includes(String(d.ticker).toUpperCase()));
     document.getElementById('pf-out').innerHTML=`<div class="shdr">Equities</div>${rows(eq)}<div class="shdr">ETFs &amp; Closed End Funds</div>${rows(et)}`;
   }catch(ex){document.getElementById('pf-out').innerHTML=`<div class="err">Could not load quotes: ${e(ex.message)}</div>`}
   btn.disabled=false;btn.textContent='&#9654; Refresh quotes';
 }
-
+ 
 const MGR='Technology Crossover Ventures, HgCapital, GHO Capital Partners, VMG Partners, Riverwood Capital Management, Vitruvian Partners, PPC Investment Partners, Highland Capital Partners Europe, Union Square Ventures, Spark Capital, 8VC, Lux Capital Management, Founders Fund, Eclipse Ventures, Mosaic Ventures, Blossom Capital';
-
 const CO_MAP={
   'Technology Crossover Ventures':'Nubank, Sportradar, Revolut, Brex, Mollie, WorldRemit, Believe, AppDirect',
   'HgCapital':'Visma, Access Group, IRIS Software, Septeo, Evalon, Howden Group, Transporeon, Trace One',
@@ -228,95 +275,88 @@ const CO_MAP={
   'Mosaic Ventures':'Clio, Benevity, Thinkific, D2L, Trulioo, Certn, Vendasta',
   'Blossom Capital':'Wayve, Reachdesk, Juro, Paddle, Multiverse, Permutive'
 };
-
 const TM={fundraise:'b-bl',exit:'b-gr',ipo:'b-am',fund_close:'b-bl',firm_news:'b-gy',financing_round:'b-pu',acquisition:'b-te'};
 const TL={fundraise:'Fundraise',exit:'Exit',ipo:'IPO',fund_close:'Fund close',firm_news:'Firm news',financing_round:'Financing',acquisition:'Acquisition'};
-
-function ncards(items){
-  return items.map(n=>`<div class="ncard"><div class="nc-meta"><span class="badge ${TM[n.type]||'b-gy'}">${e(n.portfolio_company||n.company||n.firm)}</span><span class="nc-type">${e(TL[n.type]||n.type||'')}</span>${(n.firm&&(n.portfolio_company||n.company))?`<span class="badge b-gy" style="font-size:10px">${e(n.firm)}</span>`:''}<span class="nc-dt">${e(n.date)}</span></div><div class="nc-title">${e(n.headline)}</div><div class="nc-sum">${e(n.summary)}</div></div>`).join('');
-}
-
+function ncards(items){return items.map(n=>`<div class="ncard"><div class="nc-meta"><span class="badge ${TM[n.type]||'b-gy'}">${e(n.portfolio_company||n.company||n.firm)}</span><span class="nc-type">${e(TL[n.type]||n.type||'')}</span>${(n.firm&&(n.portfolio_company||n.company))?`<span class="badge b-gy">${e(n.firm)}</span>`:''}<span class="nc-dt">${e(n.date)}</span></div><div class="nc-title">${e(n.headline)}</div><div class="nc-sum">${e(n.summary)}</div></div>`).join('')}
+ 
 async function loadMG(){
   const btn=document.getElementById('mg-btn');if(!btn)return;btn.disabled=true;
-  const out=document.getElementById('mg-out');out.innerHTML='<div class="ldg"><div class="spin"></div>Scanning for firm news…</div>';
+  const out=document.getElementById('mg-out');
+  out.innerHTML='<div class="ldg"><div class="spin"></div>Scanning for firm news...</div>';
   try{
-    const today=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
-    const txt=await ai(`Search for recent news in the last 30 days (today is ${today}) about these PE and VC investment firms: ${MGR}. Look for: new fund closes, fundraises, organizational changes, notable senior hires or departures, firm announcements, new strategies. Return up to 10 results as raw JSON array only, no markdown: [{firm,headline,summary,date,type}] where type is firm_news or fund_close`,1200);
+    const txt=await ai(`Search for recent news in the last 30 days (today is ${today()}) about these PE and VC investment firms: ${MGR}. Look for: new fund closes, fundraises, organizational changes, notable hires or departures, firm announcements. Return up to 10 results as raw JSON array only: [{firm,headline,summary,date,type}] type=firm_news or fund_close`,1200);
     const data=pj(txt);
     if(!Array.isArray(data)||!data.length){out.innerHTML='<div class="empty">No recent firm news found</div>';return}
     out.innerHTML=ncards(data);
   }catch(ex){out.innerHTML=`<div class="err">${e(ex.message)}</div>`}
   btn.disabled=false;
 }
-
+ 
 async function loadPC(){
   const btn=document.getElementById('pc-btn');if(!btn)return;btn.disabled=true;
-  const out=document.getElementById('pc-out');out.innerHTML='<div class="ldg"><div class="spin"></div>Scanning portfolio company news…</div>';
+  const out=document.getElementById('pc-out');
+  out.innerHTML='<div class="ldg"><div class="spin"></div>Scanning portfolio company news...</div>';
   try{
-    const today=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
     const cos=Object.entries(CO_MAP).map(([f,c])=>`${f}: ${c}`).join('; ');
-    const txt=await ai(`Search for recent news in the last 30 days (today is ${today}) about portfolio companies of these PE/VC firms. Focus specifically on: fundraising rounds, IPOs, acquisitions, exits, liquidity events, secondary transactions, significant financing rounds, M&A. Here are the firms and their known portfolio companies: ${cos}. Return up to 14 results as raw JSON array only, most newsworthy first, no markdown: [{firm,portfolio_company,headline,summary,date,type}] where type is one of: fundraise, exit, ipo, financing_round, acquisition`,2000);
+    const txt=await ai(`Search for recent news in the last 30 days (today is ${today()}) about portfolio companies of these PE/VC firms. Focus on: fundraising rounds, IPOs, acquisitions, exits, liquidity events, significant financing rounds. Firms and their portfolio companies: ${cos}. Return up to 14 results as raw JSON array only, most newsworthy first: [{firm,portfolio_company,headline,summary,date,type}] type=fundraise|exit|ipo|financing_round|acquisition`,2000);
     const data=pj(txt);
     if(!Array.isArray(data)||!data.length){out.innerHTML='<div class="empty">No recent portfolio company events found</div>';return}
     out.innerHTML=ncards(data);
   }catch(ex){out.innerHTML=`<div class="err">${e(ex.message)}</div>`}
   btn.disabled=false;
 }
-
+ 
 async function loadRes(){
   const btn=document.getElementById('res-btn');if(!btn)return;btn.disabled=true;
-  const out=document.getElementById('res-out');out.innerHTML='<div class="ldg"><div class="spin"></div>Searching for recent publications…</div>';
+  const out=document.getElementById('res-out');
+  out.innerHTML='<div class="ldg"><div class="spin"></div>Searching for recent publications...</div>';
   try{
-    const today=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
-    const txt=await ai(`Search for the most recent publications and research notes from: 1) Michael Cembalest at JPMorgan Asset Management - specifically his "Eyes on the Market" note series. 2) Michael Mauboussin - any research papers or investment notes published through Counterpoint Global (Morgan Stanley) or any other affiliation. Today is ${today}. Return raw JSON array, most recent first, no markdown: [{author,series,title,date,summary}]`,1000);
+    const txt=await ai(`Search for the most recent publications from: 1) Michael Cembalest at JPMorgan Asset Management - his "Eyes on the Market" note series. 2) Michael Mauboussin - research papers from Counterpoint Global or Morgan Stanley. Today is ${today()}. Return raw JSON array, most recent first: [{author,series,title,date,summary}]`,1000);
     const data=pj(txt);
     if(!Array.isArray(data)||!data.length){out.innerHTML='<div class="empty">No recent publications found</div>';return}
     out.innerHTML=data.map(r=>`<div class="ncard"><div class="nc-meta"><span class="badge b-pu">${e(r.author)}</span>${r.series?`<span class="nc-type">${e(r.series)}</span>`:''}<span class="nc-dt">${e(r.date)}</span></div><div class="nc-title">${e(r.title)}</div><div class="nc-sum">${e(r.summary)}</div></div>`).join('');
   }catch(ex){out.innerHTML=`<div class="err">${e(ex.message)}</div>`}
   btn.disabled=false;
 }
-
+ 
 async function loadSc(out){
-  out.innerHTML='<div class="ldg"><div class="spin"></div>Fetching yesterday\'s scores…</div>';
+  out.innerHTML='<div class="ldg"><div class="spin"></div>Fetching yesterday\'s scores...</div>';
   try{
-    const yd=new Date();yd.setDate(yd.getDate()-1);const yds=yd.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
-    const txt=await ai(`Search for all professional sports scores and final results from ${yds}. Include all NBA games, NHL games, and any other major professional league games played that day. Return raw JSON array only: [{league,away_team,away_score,home_team,home_score,note}]`);
+    const txt=await ai(`Search for all professional sports scores and final results from ${yesterday()}. Include all NBA games, NHL games, and any other major professional league games. Return raw JSON array only: [{league,away_team,away_score,home_team,home_score,note}]`);
     const data=pj(txt);
     if(!Array.isArray(data)||!data.length){out.innerHTML='<div class="empty">No scores found for yesterday</div>';return}
-    out.innerHTML=data.map(g=>`<div class="sc-row"><span class="sc-lg">${e(g.league)}</span><span class="sc-tm">${e(g.away_team)} @ ${e(g.home_team)}</span><span class="sc-sc">${e(g.away_score)} – ${e(g.home_score)}</span></div>`).join('');
+    out.innerHTML=data.map(g=>`<div class="sc-row"><span class="sc-lg">${e(g.league)}</span><span class="sc-tm">${e(g.away_team)} @ ${e(g.home_team)}</span><span class="sc-sc">${e(g.away_score)} - ${e(g.home_score)}</span></div>`).join('');
   }catch(ex){out.innerHTML=`<div class="err">${e(ex.message)}</div>`}
 }
-
+ 
 async function loadSt(out){
-  out.innerHTML='<div class="ldg"><div class="spin"></div>Fetching standings…</div>';
+  out.innerHTML='<div class="ldg"><div class="spin"></div>Fetching standings...</div>';
   try{
-    const today=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
-    const txt=await ai(`Search for current NBA and NHL conference standings as of ${today}. Return raw JSON only, no markdown: {nba_east:[{rank,team,w,l}],nba_west:[{rank,team,w,l}],nhl_east:[{rank,team,pts}],nhl_west:[{rank,team,pts}]} top 5 per conference.`);
+    const txt=await ai(`Current NBA and NHL conference standings as of ${today()}. Return raw JSON only: {nba_east:[{rank,team,w,l}],nba_west:[{rank,team,w,l}],nhl_east:[{rank,team,pts}],nhl_west:[{rank,team,pts}]} top 5 per conference.`);
     const data=pj(txt);if(!data){out.innerHTML='<div class="empty">No standings found</div>';return}
     function conf(title,arr,f){if(!arr||!arr.length)return'';return`<div class="shdr">${title}</div>`+arr.map(r=>`<div class="st-row"><span class="st-rk">${r.rank}</span><span class="st-tm">${e(r.team)}</span><span class="st-st">${f(r)}</span></div>`).join('')}
-    out.innerHTML=conf('NBA Eastern Conference',data.nba_east,r=>`${r.w}–${r.l}`)+conf('NBA Western Conference',data.nba_west,r=>`${r.w}–${r.l}`)+conf('NHL Eastern Conference',data.nhl_east,r=>`${r.pts} pts`)+conf('NHL Western Conference',data.nhl_west,r=>`${r.pts} pts`);
+    out.innerHTML=conf('NBA Eastern Conference',data.nba_east,r=>`${r.w}-${r.l}`)+conf('NBA Western Conference',data.nba_west,r=>`${r.w}-${r.l}`)+conf('NHL Eastern Conference',data.nhl_east,r=>`${r.pts} pts`)+conf('NHL Western Conference',data.nhl_west,r=>`${r.pts} pts`);
   }catch(ex){out.innerHTML=`<div class="err">${e(ex.message)}</div>`}
 }
-
+ 
 async function loadLd(out){
-  out.innerHTML='<div class="ldg"><div class="spin"></div>Fetching statistical leaders…</div>';
+  out.innerHTML='<div class="ldg"><div class="spin"></div>Fetching statistical leaders...</div>';
   try{
-    const today=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
-    const txt=await ai(`Search for current 2025-26 NBA and NHL statistical leaders as of ${today}. Include top 5 NBA scoring leaders (PPG), top 5 NBA assists leaders (APG), top 5 NHL points leaders. Return raw JSON only, no markdown: {nba_pts:[{rank,player,team,ppg}],nba_ast:[{rank,player,team,apg}],nhl_pts:[{rank,player,team,pts}]}`);
+    const txt=await ai(`Current 2025-26 NBA and NHL statistical leaders as of ${today()}. Top 5 NBA scoring (PPG), top 5 NBA assists (APG), top 5 NHL points. Raw JSON only: {nba_pts:[{rank,player,team,ppg}],nba_ast:[{rank,player,team,apg}],nhl_pts:[{rank,player,team,pts}]}`);
     const data=pj(txt);if(!data){out.innerHTML='<div class="empty">No leaders found</div>';return}
     function ld(t,arr,f){if(!arr||!arr.length)return'';return`<div class="shdr">${t}</div>`+arr.map(r=>`<div class="st-row"><span class="st-rk">${r.rank}</span><span class="st-tm">${e(r.player)} <span style="color:#888;font-size:12px">${e(r.team)}</span></span><span class="st-st">${f(r)}</span></div>`).join('')}
     out.innerHTML=ld('NBA Scoring Leaders',data.nba_pts,r=>`${r.ppg} ppg`)+ld('NBA Assists Leaders',data.nba_ast,r=>`${r.apg} apg`)+ld('NHL Points Leaders',data.nhl_pts,r=>`${r.pts} pts`);
   }catch(ex){out.innerHTML=`<div class="err">${e(ex.message)}</div>`}
 }
-
+ 
 async function loadNews(cat){
-  const today=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
   const P={
-    mk:`Search for the top 5 US financial market news stories today ${today}. Cover: equity index performance (S&P 500, Nasdaq), Fed or rates news, major macro data releases, notable earnings. Return raw JSON array only: [{title,summary,source}]`,
-    pe:`Search for the top 5 private equity and venture capital news stories today ${today}. Cover: fund closes, major deals, notable exits or IPOs, LP/GP activity, industry trends. Return raw JSON array only: [{title,summary,source}]`
+    mk:`Top 5 US market news stories today ${today()}. Cover equity performance, Fed/rates, macro data, earnings. Raw JSON array only: [{title,summary,source}]`,
+    pe:`Top 5 private equity and venture capital news stories today ${today()}. Cover fund closes, deals, exits, LP activity. Raw JSON array only: [{title,summary,source}]`
   };
   const btn=document.getElementById(cat+'-btn');if(btn)btn.disabled=true;
-  const out=document.getElementById(cat+'-out');out.innerHTML='<div class="ldg"><div class="spin"></div>Fetching briefing…</div>';
+  const out=document.getElementById(cat+'-out');
+  out.innerHTML='<div class="ldg"><div class="spin"></div>Fetching briefing...</div>';
   try{
     const txt=await ai(P[cat]);const data=pj(txt);
     if(!Array.isArray(data)||!data.length){out.innerHTML='<div class="empty">No results found</div>';return}
@@ -324,19 +364,24 @@ async function loadNews(cat){
   }catch(ex){out.innerHTML=`<div class="err">${e(ex.message)}</div>`}
   if(btn)btn.disabled=false;
 }
-
+ 
 async function loadNL(){
   const btn=document.getElementById('nl-btn');btn.disabled=true;
-  const out=document.getElementById('nl-out');out.innerHTML='<div class="ldg"><div class="spin"></div>Scanning inbox…</div>';
+  const out=document.getElementById('nl-out');
+  out.innerHTML='<div class="ldg"><div class="spin"></div>Scanning inbox...</div>';
   try{
-    const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MODEL,max_tokens:1000,mcp_servers:[{type:'url',url:'https://gmail.mcp.claude.com/mcp',name:'gmail'}],messages:[{role:'user',content:'Search my Gmail inbox for newsletters, research digests, fund updates, and subscription content received in the last 7 days. Search for: digest, newsletter, briefing, weekly, edition, substack, research, "eyes on the market", mauboussin, fund update. Return up to 10 results as raw JSON array only, no markdown: [{sender,subject,date,snippet}]'}]})});
-    const d=await r.json();const txt=d.content.filter(b=>b.type==='text').map(b=>b.text).join('');const data=pj(txt);
+    const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':APIKEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:MODEL,max_tokens:1000,mcp_servers:[{type:'url',url:'https://gmail.mcp.claude.com/mcp',name:'gmail'}],
+        messages:[{role:'user',content:'Search Gmail for newsletters, digests, research, fund updates last 7 days. Terms: digest, newsletter, briefing, weekly, substack, research, eyes on the market, mauboussin, fund update. Raw JSON array only: [{sender,subject,date,snippet}] up to 10 results.'}]})});
+    const d=await r.json();
+    const txt=d.content.filter(b=>b.type==='text').map(b=>b.text).join('');
+    const data=pj(txt);
     if(!Array.isArray(data)||!data.length){out.innerHTML='<div class="empty">No newsletters found in the last 7 days</div>';return}
     out.innerHTML=data.map(n=>`<div class="nli"><div class="nlf">${e(n.sender)}</div><div class="nls">${e(n.subject)}</div><div class="nlk">${e(n.snippet)}</div><div class="nld">${e(n.date)}</div></div>`).join('');
-  }catch(ex){out.innerHTML=`<div class="err">Could not load inbox. Make sure Gmail is connected in Claude.<br>${e(ex.message)}</div>`}
+  }catch(ex){out.innerHTML=`<div class="err">Could not load inbox: ${e(ex.message)}</div>`}
   btn.disabled=false;btn.textContent='&#9654; Refresh inbox';
 }
-
+ 
 let tasks=[{id:1,text:'Review Hg fund update memos',done:false},{id:2,text:'Check Preqin data refresh',done:false},{id:3,text:'Respond to pending IR correspondence',done:false}],nid=4;
 function rT(){
   const d=tasks.filter(t=>t.done).length,tot=tasks.length;
@@ -348,7 +393,7 @@ function addT(){const i=document.getElementById('tin'),v=i.value.trim();if(!v)re
 function tog(id){const t=tasks.find(t=>t.id===id);if(t)t.done=!t.done;rT()}
 function del(id){tasks=tasks.filter(t=>t.id!==id);rT()}
 rT();
-window.addEventListener('load',()=>setTimeout(()=>loadPF(),300));
 </script>
 </body>
 </html>
+ 
